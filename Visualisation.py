@@ -38,33 +38,37 @@ def parse_steps(user_input):
     Parses user input to extract:
     - Well plate slot number
     - Reservoir slot number
-    - Dispensing steps with column information
-    - Reservoir column being aspirated
+    - Ordered steps for aspirating and dispensing in sequence
+    - Reservoir column usage
     """
     well_plate_slot = None
     reservoir_slot = None
     steps = []
-    reservoir_filled_columns = set()  # To track which columns of the reservoir are used
+    reservoir_filled_columns = set()
 
-    # Detect well plate slot
-    well_plate_pattern = r"Dispensing.*into (A\d+) of NEST 96 Well Plate.*on slot (\d+)"
-    well_plate_matches = re.findall(well_plate_pattern, user_input)
+    lines = user_input.strip().split("\n")  # Read input line by line
 
-    if well_plate_matches:
-        for match in well_plate_matches:
-            column_index = int(match[0][1:]) - 1  # Convert A1 -> 0, A2 -> 1, etc.
-            well_plate_slot = int(match[1])  # Extract well plate slot
-            steps.append((column_index, well_plate_slot))
+    for line in lines:
+        # Match aspirating from well plate or reservoir
+        aspirate_match = re.search(r"Aspirating.*from (A\d+) of (NEST 96 Well Plate|NEST 12 Well Reservoir).*on slot (\d+)", line)
+        if aspirate_match:
+            column_index = int(aspirate_match.group(1)[1:]) - 1  # Convert A1 -> 0
+            source_type = aspirate_match.group(2)
+            source_slot = int(aspirate_match.group(3))
 
-    # Detect reservoir slot and column
-    reservoir_pattern = r"Aspirating.*from (A\d+) of NEST 12 Well Reservoir.*on slot (\d+)"
-    reservoir_matches = re.findall(reservoir_pattern, user_input)
+            if "96 Well Plate" in source_type:
+                well_plate_slot = source_slot
+                steps.append(("aspirate", column_index, well_plate_slot))  # Append in sequence
+            elif "12 Well Reservoir" in source_type:
+                reservoir_slot = source_slot
+                reservoir_filled_columns.add(column_index)
 
-    if reservoir_matches:
-        for match in reservoir_matches:
-            reservoir_column = int(match[0][1:]) - 1  # Extract column index from "A1" -> 0, "A2" -> 1
-            reservoir_slot = int(match[1])  # Extract slot number
-            reservoir_filled_columns.add(reservoir_column)  # Track filled reservoir columns
+        # Match dispensing into well plate
+        dispense_match = re.search(r"Dispensing.*into (A\d+) of NEST 96 Well Plate.*on slot (\d+)", line)
+        if dispense_match:
+            column_index = int(dispense_match.group(1)[1:]) - 1
+            well_plate_slot = int(dispense_match.group(2))
+            steps.append(("dispense", column_index, well_plate_slot))  # Append in sequence
 
     return steps, well_plate_slot, reservoir_slot, reservoir_filled_columns
 
@@ -145,39 +149,45 @@ def draw_grid(frame_num, filled_columns, well_plate_slot=None, reservoir_slot=No
     return frame_path
 
 def generate_animation(user_input):
+    """
+    Generates an animation where:
+    - Aspirating makes a well turn white (liquid removed)
+    - Dispensing makes a well turn blue (liquid added)
+    - Steps are executed in order
+    """
     steps, well_plate_slot, reservoir_slot, reservoir_filled_columns = parse_steps(user_input)
     frames = []
 
-    filled_columns = set()
+    filled_columns = set()  # Track wells that are filled with liquid
 
     frame_number = 0
-    frames.append(draw_grid(frame_number, filled_columns, well_plate_slot, reservoir_slot, reservoir_filled_columns))  
+    frames.append(draw_grid(frame_number, filled_columns, well_plate_slot, reservoir_slot, reservoir_filled_columns))
 
     for step in steps:
-        column, slot = step
-        well_plate_slot = slot  
+        action, column, slot = step
+        well_plate_slot = slot
 
         frame_number += 1
-        frames.append(draw_grid(frame_number, filled_columns, well_plate_slot, reservoir_slot, reservoir_filled_columns))  
-        filled_columns.add(column)
-        frame_number += 1
-        frames.append(draw_grid(frame_number, filled_columns, well_plate_slot, reservoir_slot, reservoir_filled_columns))  
+        if action == "aspirate":
+            filled_columns.discard(column)  # Remove color when aspirated (turn white)
+            frames.append(draw_grid(frame_number, filled_columns, well_plate_slot, reservoir_slot, reservoir_filled_columns))
+        elif action == "dispense":
+            filled_columns.add(column)  # Fill well when dispensed (turn blue)
+            frames.append(draw_grid(frame_number, filled_columns, well_plate_slot, reservoir_slot, reservoir_filled_columns))
 
     output_gif = "well_plate_grid_animation.gif"
     imageio.mimsave(output_gif, [imageio.imread(f) for f in frames], duration=2, loop=0)
 
     print(f"GIF saved as {output_gif}")
-
+    print(steps)
 
 # Example input
 user_input = """
 	Aspirating 100.0 uL from A1 of NEST 12 Well Reservoir 15 mL on slot 2 at 94.0 uL/sec
 	Dispensing 100.0 uL into A1 of NEST 96 Well Plate 200 µL Flat on slot 3 at 94.0 uL/sec
     Aspirating 100.0 uL from A2 of NEST 12 Well Reservoir 15 mL on slot 2 at 94.0 uL/sec
-	Dispensing 100.0 uL into A1 of NEST 96 Well Plate 200 µL Flat on slot 3 at 94.0 uL/sec
-    Aspirating 100.0 uL from A1 of NEST 96 Well Plate 200 µL Flat on slot 3 at 94.0 uL/sec
 	Dispensing 100.0 uL into A2 of NEST 96 Well Plate 200 µL Flat on slot 3 at 94.0 uL/sec
-	Aspirating 100.0 uL from A2 of NEST 96 Well Plate 200 µL Flat on slot 3 at 94.0 uL/sec
+    Aspirating 100.0 uL from A1 of NEST 96 Well Plate 200 µL Flat on slot 3 at 94.0 uL/sec
 	Dispensing 100.0 uL into A3 of NEST 96 Well Plate 200 µL Flat on slot 3 at 94.0 uL/sec
 	Aspirating 100.0 uL from A3 of NEST 96 Well Plate 200 µL Flat on slot 3 at 94.0 uL/sec
 	Dispensing 100.0 uL into A4 of NEST 96 Well Plate 200 µL Flat on slot 3 at 94.0 uL/sec
