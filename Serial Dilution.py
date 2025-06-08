@@ -4,7 +4,8 @@ from opentrons import protocol_api
 metadata = {
     "apiLevel": "2.20",
     "protocolName": "serial dilution",
-    "description": """protocol for writing UCL""",
+    "description": """protocol to perfrom serial dilution using 8-channel pipette with 
+    washing steps and tip return steps to reduce waste""",
     "author": "Group 1"
     }
 
