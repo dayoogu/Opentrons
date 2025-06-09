@@ -5,7 +5,7 @@ from opentrons.protocol_api import PARTIAL_COLUMN, ALL
 # Define metadata
 metadata = {
     " protocolName " : "Partial Column" ,
-    " description " : """The aim of this protocol is to operate serial dilution with partial column using 8 channel pipette.""" ,
+    " description " : """The aim of this protocol is to teach students how to operate with partial columns""" ,
     " author " : " User 1 "
     }
 
@@ -40,7 +40,7 @@ def run(protocol: protocol_api.ProtocolContext):
         volume=100,
         source=reservoir["A1"],  # aspirate from A1 of reservoir
         dest=plate["D1"],    # dispense into A1-D1
-        new_tip='never'  # Prevents automatic tip drop
+        new_tip="never"  # Prevents automatic tip drop
     )
 
     # Transfer diluent from reservoir A1 to A2-D2 
@@ -48,7 +48,7 @@ def run(protocol: protocol_api.ProtocolContext):
         volume=100,
         source=reservoir["A1"],  # aspirate from A1 of reservoir
         dest=plate["D2"],    # dispense into A2-D2
-        new_tip='never'  # Prevents automatic tip drop
+        new_tip="never"  # Prevents automatic tip drop
     )
 
     # Drop the tip
@@ -62,7 +62,7 @@ def run(protocol: protocol_api.ProtocolContext):
         volume=100,
         source=reservoir["A2"],  # aspirate from A1 of reservoir
         dest=plate["D1"],    # dispense into A1-D1
-        new_tip='never'  # Prevents automatic tip drop
+        new_tip="never"  # Prevents automatic tip drop
     )
     
     # Transfer from A1-D1 to A2-D2 (Using the same tip)
@@ -70,7 +70,7 @@ def run(protocol: protocol_api.ProtocolContext):
         volume=100,
         source=plate["D1"],  # aspirate from A1-D1
         dest=plate["D2"],    # dispense into A2-D2
-        new_tip='never'  # Prevents automatic tip drop
+        new_tip="never"  # Prevents automatic tip drop
     )
 
     # Drop the tip manually at the end
