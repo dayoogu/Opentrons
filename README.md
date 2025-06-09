@@ -4,32 +4,31 @@ This repository contains Python scripts designed to control the Opentrons OT-2 l
 
 📁 Included Protocols
 
-UCL.py – Writes "UCL" on a Corning 96-well plate using precise liquid dispensing.
+**UCL.py** – Writes "UCL" on a Corning 96-well plate using precise liquid dispensing.
 
-Serial Dilution.py – Performs a standard serial dilution procedure across wells.
+**Serial Dilution.py** – Performs a standard serial dilution procedure across wells.
 
-Partial Column.py – Demonstrates partial-column pipetting with custom nozzle configuration.
+**Partial Column.py** – Demonstrates partial-column pipetting with custom nozzle configuration.
 
-AuNP Synthesis.py – Automates the synthesis of gold nanoparticles (AuNPs).
+**AuNP Synthesis.py** – Automates the synthesis of gold nanoparticles (AuNPs).
 
 🌟 Highlights & Educational Value
 
-Designed for use with the Opentrons OT-2 robot.
+- Designed for use with the Opentrons OT-2 robot.
 
-Demonstrates efficient, readable, and modular Python code structure.
+- Demonstrates efficient, readable, and modular Python code structure.
 
-Goes beyond basic liquid transfers to include:
+- Goes beyond basic liquid transfers to include:
 
-Partial-column pipetting
+- Partial-column pipetting
 
-Push-out dispensing
+- Push-out dispensing
 
-Tip washing steps
+- Tip washing steps
 
-Sustainable practices like returning tips to racks
+- Sustainable practices like returning tips to racks
 
-Introduces students to real-world lab automation and encourages green chemistry principles.
+- Introduces students to real-world lab automation and encourages green chemistry principles.
 
-These protocols are intended as starting points — students are encouraged to build on them, improve efficiency, and experiment with more complex robotic logic.
-
-Feel free to fork this repo, test the protocols, and adapt them to your own research or teaching needs. Contributions and ideas are welcome!
+💡 These protocols are intended as starting points — students are encouraged to build on them, improve efficiency, and experiment with more complex robotic logic.
+✨ Feel free to fork this repo 🍴, test the protocols 🧪, and adapt them to your own research or teaching needs 🎓🔬. Contributions and ideas are welcome 🤝!
